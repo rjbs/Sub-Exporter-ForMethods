@@ -4,8 +4,10 @@ use warnings;
 
 use Test::More;
 
-unless (eval { require namespace::autoclean }) {
-  plan skip_all => 'namespace::autoclean required for this test';
+BEGIN {
+  unless (eval { require namespace::autoclean }) {
+    plan skip_all => 'namespace::autoclean required for this test';
+  }
 }
 
 plan 'no_plan';
