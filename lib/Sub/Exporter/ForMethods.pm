@@ -5,7 +5,7 @@ package Sub::Exporter::ForMethods;
 
 use Sub::Name ();
 
-use Sub::Exporter -setup => {
+use Sub::Exporter 0.978 -setup => {
   exports => [ qw(method_installer) ],
 };
 
