@@ -1,6 +1,8 @@
 Revision history for Sub-Exporter-ForMethods
 
 {{$NEXT}}
+
+0.100052  2015-07-17 19:27:36-04:00 America/New_York
         - add the ability to bless the wrapper into the wrapped sub's class,
           if requested
 
