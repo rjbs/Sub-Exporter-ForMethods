@@ -3,6 +3,7 @@ use warnings;
 package Sub::Exporter::ForMethods;
 # ABSTRACT: helper routines for using Sub::Exporter to build methods
 
+use Scalar::Util 'blessed';
 use Sub::Name ();
 
 use Sub::Exporter 0.978 -setup => {
@@ -71,32 +72,46 @@ be called by its full package name:
 
 =head2 method_installer
 
+  my $installer = method_installer(\%arg);
+
 This routine returns an installer suitable for use as the C<installer> argument
 to Sub::Exporter.  It updates the C<\@to_export> argument to wrap all code that
 will be installed by name in a named subroutine, then passes control to the
 default Sub::Exporter installer.
 
+The only argument to C<method_installer> is an optional hashref which may
+contain a single entry for C<rebless>.  If the value for C<rebless> is true,
+when a blessed subroutine is wrapped, the wrapper will be blessed into the same
+package.
+
 =cut
 
-sub method_installer { 
-  sub { 
-    my ($arg, $to_export) = @_; 
+sub method_installer {
+  my ($mxi_arg) = @_;
+  my $rebless = $mxi_arg->{rebless};
+
+  sub {
+    my ($arg, $to_export) = @_;
 
     my $into = $arg->{into};
 
     for (my $i = 0; $i < @$to_export; $i += 2) {
       my ($as, $code) = @$to_export[ $i, $i+1 ];
-      
+
       next if ref $as;
+      my $sub = sub { $code->(@_) };
+      if ($rebless and defined (my $code_pkg = blessed $code)) {
+        bless $sub, $code_pkg;
+      }
 
       $to_export->[ $i + 1 ] = Sub::Name::subname(
         join(q{::}, $into, $as),
-        sub { $code->(@_) },
+        $sub,
       );
     }
- 
-    Sub::Exporter::default_installer($arg, $to_export); 
-  }; 
-} 
+
+    Sub::Exporter::default_installer($arg, $to_export);
+  };
+}
 
 1;
