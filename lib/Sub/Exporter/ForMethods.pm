@@ -7,7 +7,7 @@ use Scalar::Util 'blessed';
 use Sub::Name ();
 
 use Sub::Exporter 0.978 -setup => {
-  exports => [ qw(method_installer) ],
+  exports => [ qw(method_installer method_goto_installer) ],
 };
 
 =head1 SYNOPSIS
@@ -87,8 +87,24 @@ package.
 =cut
 
 sub method_installer {
+  _generic_method_installer(
+    sub { my $code = shift; sub { $code->(@_) } },
+    @_,
+  );
+}
+
+sub method_goto_installer {
+  _generic_method_installer(
+    sub { my $code = shift; sub { goto &$code } },
+    @_,
+  );
+}
+
+sub _generic_method_installer {
+  my $generator = shift;
+
   my ($mxi_arg) = @_;
-  my $rebless = $mxi_arg->{rebless};
+  my $rebless   = $mxi_arg->{rebless};
 
   sub {
     my ($arg, $to_export) = @_;
@@ -99,7 +115,7 @@ sub method_installer {
       my ($as, $code) = @$to_export[ $i, $i+1 ];
 
       next if ref $as;
-      my $sub = sub { $code->(@_) };
+      my $sub = $generator->($code);
       if ($rebless and defined (my $code_pkg = blessed $code)) {
         bless $sub, $code_pkg;
       }
