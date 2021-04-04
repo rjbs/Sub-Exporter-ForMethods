@@ -1,6 +1,8 @@
 Revision history for Sub-Exporter-ForMethods
 
 {{$NEXT}}
+
+0.100053  2021-04-04 12:59:57-04:00 America/New_York (TRIAL RELEASE)
         - replace Sub::Name with Sub::Util, which has been core since 2015
 
 0.100052  2015-07-17 19:27:36-04:00 America/New_York
