@@ -3,8 +3,8 @@ use warnings;
 package Sub::Exporter::ForMethods;
 # ABSTRACT: helper routines for using Sub::Exporter to build methods
 
-use Scalar::Util 'blessed';
-use Sub::Name ();
+use Scalar::Util ();
+use Sub::Util ();
 
 use Sub::Exporter 0.978 -setup => {
   exports => [ qw(method_installer method_goto_installer) ],
@@ -116,11 +116,11 @@ sub _generic_method_installer {
 
       next if ref $as;
       my $sub = $generator->($code);
-      if ($rebless and defined (my $code_pkg = blessed $code)) {
+      if ($rebless and defined (my $code_pkg = Scalar::Util::blessed($code))) {
         bless $sub, $code_pkg;
       }
 
-      $to_export->[ $i + 1 ] = Sub::Name::subname(
+      $to_export->[ $i + 1 ] = Sub::Util::set_subname(
         join(q{::}, $into, $as),
         $sub,
       );
